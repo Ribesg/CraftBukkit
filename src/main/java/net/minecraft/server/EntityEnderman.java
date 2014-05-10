@@ -246,7 +246,7 @@ public class EntityEnderman extends EntityMonster {
 
             if (flag1) {
                 // CraftBukkit start - Teleport event
-                EntityTeleportEvent teleport = new EntityTeleportEvent(this.getBukkitEntity(), new Location(this.world.getWorld(), d3, d4, d5), new Location(this.world.getWorld(), this.locX, this.locY, this.locZ));
+                EntityTeleportEvent teleport = new EntityTeleportEvent(this.getBukkitEntity(), new Location(this.world.getWorld(), d3, d4, d5), new Location(this.world.getWorld(), this.locX, this.locY, this.locZ), EntityTeleportEvent.TeleportCause.ENDERMAN);
                 this.world.getServer().getPluginManager().callEvent(teleport);
                 if (teleport.isCancelled()) {
                     return false;
