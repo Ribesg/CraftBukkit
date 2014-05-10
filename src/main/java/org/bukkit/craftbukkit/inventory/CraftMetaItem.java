@@ -214,7 +214,7 @@ class CraftMetaItem implements ItemMeta, Repairable {
             this.lore = new ArrayList<String>(meta.lore);
         }
 
-        if (meta.hasEnchants()) {
+        if (meta.enchantments != null) {
             this.enchantments = new HashMap<Enchantment, Integer>(meta.enchantments);
         }
 
@@ -386,7 +386,7 @@ class CraftMetaItem implements ItemMeta, Repairable {
     }
 
     static void applyEnchantments(Map<Enchantment, Integer> enchantments, NBTTagCompound tag, ItemMetaKey key) {
-        if (enchantments == null || enchantments.size() == 0) {
+        if (enchantments == null) {
             return;
         }
 
@@ -421,7 +421,7 @@ class CraftMetaItem implements ItemMeta, Repairable {
 
     @Overridden
     boolean isEmpty() {
-        return !(hasDisplayName() || hasEnchants() || hasLore() || hasAttributes() || hasRepairCost());
+        return !(hasDisplayName() || hasEnchants() || hasLore() || hasAttributes() || hasRepairCost() || hasGlow());
     }
 
     public String getDisplayName() {
@@ -513,6 +513,21 @@ class CraftMetaItem implements ItemMeta, Repairable {
         repairCost = cost;
     }
 
+    public boolean hasGlow() {
+        return enchantments != null;
+    }
+
+    public boolean setGlow(boolean value) {
+        if (value && enchantments == null) {
+            enchantments = new HashMap<Enchantment, Integer>();
+            return true;
+        } else if (!value && enchantments != null && enchantments.isEmpty()) {
+            enchantments = null;
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public final boolean equals(Object object) {
         if (object == null) {
@@ -538,7 +553,8 @@ class CraftMetaItem implements ItemMeta, Repairable {
                 && (this.hasEnchants() ? that.hasEnchants() && this.enchantments.equals(that.enchantments) : !that.hasEnchants())
                 && (this.hasLore() ? that.hasLore() && this.lore.equals(that.lore) : !that.hasLore())
                 && (this.hasAttributes() ? that.hasAttributes() && this.attributes.equals(that.attributes) : !that.hasAttributes())
-                && (this.hasRepairCost() ? that.hasRepairCost() && this.repairCost == that.repairCost : !that.hasRepairCost());
+                && (this.hasRepairCost() ? that.hasRepairCost() && this.repairCost == that.repairCost : !that.hasRepairCost()
+                && (this.hasGlow() == that.hasGlow()));
     }
 
     /**
@@ -564,6 +580,7 @@ class CraftMetaItem implements ItemMeta, Repairable {
         hash = 61 * hash + (hasEnchants() ? this.enchantments.hashCode() : 0);
         hash = 61 * hash + (hasAttributes() ? this.attributes.hashCode() : 0);
         hash = 61 * hash + (hasRepairCost() ? this.repairCost : 0);
+        hash = 61 * hash + (hasGlow() ? 1 : 0);
         return hash;
     }
 
@@ -611,7 +628,7 @@ class CraftMetaItem implements ItemMeta, Repairable {
     }
 
     static void serializeEnchantments(Map<Enchantment, Integer> enchantments, ImmutableMap.Builder<String, Object> builder, ItemMetaKey key) {
-        if (enchantments == null || enchantments.isEmpty()) {
+        if (enchantments == null) {
             return;
         }
 
