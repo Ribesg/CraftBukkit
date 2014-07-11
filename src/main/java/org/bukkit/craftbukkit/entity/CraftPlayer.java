@@ -29,6 +29,7 @@ import org.bukkit.Statistic;
 import org.bukkit.Material;
 import org.bukkit.Statistic.Type;
 import org.bukkit.World;
+import org.bukkit.chat.RichMessage;
 import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
@@ -159,6 +160,15 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public void sendMessage(String[] messages) {
         for (String message : messages) {
             sendMessage(message);
+        }
+    }
+
+    @Override
+    public void sendMessage(RichMessage message) {
+        if (getHandle().playerConnection == null) return;
+
+        for (IChatBaseComponent component : CraftChatMessage.fromRichMessage(message)) {
+            getHandle().playerConnection.sendPacket(new PacketPlayOutChat(component));
         }
     }
 

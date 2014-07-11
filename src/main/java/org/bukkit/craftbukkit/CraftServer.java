@@ -112,6 +112,7 @@ import org.bukkit.Warning.WarningState;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
+import org.bukkit.chat.RichMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
@@ -141,6 +142,7 @@ import org.bukkit.craftbukkit.scheduler.CraftScheduler;
 import org.bukkit.craftbukkit.scoreboard.CraftScoreboardManager;
 import org.bukkit.craftbukkit.updater.AutoUpdater;
 import org.bukkit.craftbukkit.updater.BukkitDLUpdaterService;
+import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.craftbukkit.util.CraftIconCache;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.util.DatFileFilter;
@@ -546,6 +548,10 @@ public final class CraftServer implements Server {
 
     @Override
     public int broadcastMessage(String message) {
+        return broadcast(message, BROADCAST_CHANNEL_USERS);
+    }
+
+    public int broadcastMessage(RichMessage message) {
         return broadcast(message, BROADCAST_CHANNEL_USERS);
     }
 
@@ -1333,6 +1339,23 @@ public final class CraftServer implements Server {
                 count++;
             }
         }
+
+        return count;
+    }
+
+    public int broadcast(RichMessage message, String permission) {
+        int count = 0;
+        Set<Permissible> permissibles = getPluginManager().getPermissionSubscriptions(permission);
+
+        for (Permissible permissible : permissibles) {
+            if (permissible instanceof Player && permissible.hasPermission(permission)) {
+                Player user = (Player) permissible;
+                user.sendMessage(message);
+                count++;
+            }
+        }
+        
+        getConsoleSender().sendMessage(CraftChatMessage.toColoredString(message));
 
         return count;
     }
