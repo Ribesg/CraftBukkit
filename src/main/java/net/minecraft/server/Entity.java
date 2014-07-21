@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 // CraftBukkit start
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.TravelAgent;
 import org.bukkit.block.BlockFace;
@@ -1785,6 +1786,23 @@ public abstract class Entity {
 
             TravelAgent agent = exit != null ? (TravelAgent) ((CraftWorld) exit.getWorld()).getHandle().getTravelAgent() : org.bukkit.craftbukkit.CraftTravelAgent.DEFAULT; // return arbitrary TA to compensate for implementation dependent plugins
             TeleportCause cause = enter.getBlock().getType() == org.bukkit.Material.PORTAL ? TeleportCause.NETHER_PORTAL : TeleportCause.END_PORTAL;
+            if (enter.getBlock().getType() == Material.ENDER_PORTAL) {
+                cause = TeleportCause.END_PORTAL;
+            } else if (enter.getBlock().getType() == Material.PORTAL) {
+                cause = TeleportCause.NETHER_PORTAL;
+            } else {
+                java.util.Set<Material> relativeMaterials = new java.util.HashSet<Material>(BlockFace.values().length);
+                for (BlockFace direction : BlockFace.values()) {
+                    relativeMaterials.add(enter.getBlock().getRelative(direction).getType());
+                }
+                if (relativeMaterials.contains(Material.ENDER_PORTAL)) {
+                    cause = TeleportCause.END_PORTAL;
+                } else if (relativeMaterials.contains(Material.PORTAL)) {
+                    cause = TeleportCause.NETHER_PORTAL;
+                } else {
+                    // TODO ?
+                }
+            }
             EntityPortalEvent event = new EntityPortalEvent(this.getBukkitEntity(), enter, exit, agent, cause);
             event.useTravelAgent(useTravelAgent);
             event.getEntity().getServer().getPluginManager().callEvent(event);
