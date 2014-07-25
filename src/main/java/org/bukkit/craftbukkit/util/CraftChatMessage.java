@@ -172,7 +172,8 @@ public final class CraftChatMessage {
                         throw new UnsupportedOperationException("Unkown hover object type: " + hover.getType());
                     }
                     if (part.isLocalizedText()) {
-                        appendWithLocalizedText(component, part.getText(), part.getLocalizedTextParameters());
+	                    String[] params = part.getLocalizedTextParameters() == null ? new String[0] : part.getLocalizedTextParameters();
+                        appendWithLocalizedText(component, part.getText(), params);
                     } else if (part.getText() != null) {
                         appendWithText(component, part.getText());
                     } else {
@@ -180,7 +181,8 @@ public final class CraftChatMessage {
                     }
                 } else {
                     if (part.isLocalizedText()) {
-                        ChatMessage localizedMessage = new ChatMessage(part.getText(), part.getLocalizedTextParameters());
+	                    String[] params = part.getLocalizedTextParameters() == null ? new String[0] : part.getLocalizedTextParameters();
+                        ChatMessage localizedMessage = new ChatMessage(part.getText(), params);
                         localizedMessage.setChatModifier(modifier.clone());
                         list.add(localizedMessage);
                     } else if (part.getText() != null) {
@@ -221,7 +223,7 @@ public final class CraftChatMessage {
         }
 
         private void appendWithLocalizedText(IChatBaseComponent component, String id, String[] parameters) {
-            ChatMessage localized = new ChatMessage(id, parameters);
+            ChatMessage localized = new ChatMessage(id, parameters == null ? new String[0] : parameters);
             localized.getChatModifier().a(component.getChatModifier().i());
             list.add(localized);
         }
