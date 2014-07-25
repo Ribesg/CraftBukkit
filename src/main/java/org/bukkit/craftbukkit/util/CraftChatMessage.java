@@ -24,8 +24,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
 import org.bukkit.chat.Message;
-import org.bukkit.chat.Message.Click;
-import org.bukkit.chat.Message.Part;
+import org.bukkit.chat.Click;
+import org.bukkit.chat.Hover;
+import org.bukkit.chat.Part;
 import org.bukkit.craftbukkit.CraftStatistic;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 
@@ -158,17 +159,17 @@ public final class CraftChatMessage {
 
         private RichMessage(Message message) {
             for (Part part : message) {
-                if (part.getHoverObject() != null) {
+                if (part.getHover() != null && part.getHover().getType() != Hover.Type.SHOW_TEXT) {
                     IChatBaseComponent component;
-                    Object obj = part.getHoverObject();
-                    if (obj instanceof org.bukkit.Achievement) {
-                        Achievement achievement = CraftStatistic.getNMSAchievement((org.bukkit.Achievement) obj);
+                    Hover hover = part.getHover();
+                    if (hover.getType() == Hover.Type.SHOW_ACHIEVEMENT) {
+                        Achievement achievement = CraftStatistic.getNMSAchievement(hover.getAchievement());
                         component = achievement.e(); // TODO Should be ?
-                    } else if (obj instanceof org.bukkit.inventory.ItemStack) {
-                        ItemStack item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) obj);
+                    } else if (hover.getType() == Hover.Type.SHOW_ITEM) {
+                        ItemStack item = CraftItemStack.asNMSCopy(hover.getItem());
                         component = item.E(); // TODO Should be ?
                     } else {
-                        throw new UnsupportedOperationException("Unkown hover object type: " + obj.getClass());
+                        throw new UnsupportedOperationException("Unkown hover object type: " + hover.getType());
                     }
                     if (part.isLocalizedText()) {
                         appendWithLocalizedText(component, part.getText(), part.getLocalizedTextParameters());
@@ -191,7 +192,9 @@ public final class CraftChatMessage {
                         // TODO Empty part, should not be impossible, what do we do?
                         continue;
                     }
-                    applyHoverLines(part.getHoverLines());
+                    if (part.getHover() != null) {
+                        applyHoverLines(part.getHover().getText());
+                    }
                 }
                 applyClick(part.getClickAction());
                 mergeWithPreviousPart();
