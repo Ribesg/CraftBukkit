@@ -172,7 +172,7 @@ public final class CraftChatMessage {
                         throw new UnsupportedOperationException("Unkown hover object type: " + hover.getType());
                     }
                     if (part.isLocalizedText()) {
-	                    String[] params = part.getLocalizedTextParameters() == null ? new String[0] : part.getLocalizedTextParameters();
+                        String[] params = part.getLocalizedTextParameters() == null ? new String[0] : part.getLocalizedTextParameters();
                         appendWithLocalizedText(component, part.getText(), params);
                     } else if (part.getText() != null) {
                         appendWithText(component, part.getText());
